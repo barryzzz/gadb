@@ -24,3 +24,11 @@ export export PATH=${PATH}:你的路径/
 
 
 
+### And then
+
+```
+gadb shell 
+or gadb ....s
+```
+
+
