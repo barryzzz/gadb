@@ -3,6 +3,9 @@ quick to use android adb  between multiple devices
 
 go build gadb
 
+### Why?
+[sadb](https://github.com/linroid/sadb) start the speed is too slow ,so Use the go to refactor
+
 ### How to use?
 
 #### osx
