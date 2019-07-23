@@ -1,5 +1,7 @@
-# go_sadb
-go build sadb
+# android gadb
+quick to use android adb  between multiple devices
+
+go build gadb
 
 ### How to use?
 
