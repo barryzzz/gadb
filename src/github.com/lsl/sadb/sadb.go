@@ -15,6 +15,7 @@ type devices struct {
 	serial, usb, product, model, device string
 }
 
+//选择设备
 func select_devices(devs []devices) []devices {
 	count := len(devs)
 	fmt.Println("Device list:")
@@ -58,6 +59,7 @@ func read_args() []string {
 	return args
 }
 
+//读取设备
 func read_devices() []devices {
 
 	var cmd = exec.Command("adb", "devices", "-l")
@@ -85,6 +87,7 @@ func read_devices() []devices {
 	return arrays
 }
 
+//执行shell 指令
 func exec_adb_cmd_on_device(device string, args []string) {
 	var temps []string
 	temps = append(temps, "-s")
@@ -92,16 +95,16 @@ func exec_adb_cmd_on_device(device string, args []string) {
 	temps = append(temps, args...)
 	fmt.Println(temps)
 	cmd := exec.Command("adb", temps...)
-	cmd.Run()
-	// var _, error = cmd.Output()
-	// if error != nil {
-	// 	fmt.Println(error)
-	// 	os.Exit(0)
-	// }
-	// cmd.Wait()
-	// fmt.Println(strings.Trim(string(s), "\n"))
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(-1)
+	}
 }
-func sadb() {
+func Sadb() {
 	var devices = read_devices()
 	var args = read_args()
 	var count = len(devices)
@@ -124,10 +127,5 @@ func sadb() {
 		fmt.Println("No device found")
 		os.Exit(0)
 	}
-
-}
-func SadbTest() {
-	// sadb()
-	exec.Command("adb", "-s", "d614c945", "shell").Run()
 
 }
