@@ -1,4 +1,21 @@
 # go_sadb
 go build sadb
 
-### 使用go重构python写的sadb 项目，之前的sadb 运行速度实在是受不了了...
+### How to use?
+
+#### osx
+把执行文件路径添加到环境变量中
+```
+export export PATH=${PATH}:你的路径/
+    ​
+```
+#### linux
+把执行文件路径添加到环境变量中
+```
+export export PATH=${PATH}:你的路径/
+```
+#### win
+在系统环境变量中添加执行文件路径
+
+
+
