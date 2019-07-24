@@ -1,4 +1,4 @@
-package sadb
+package gadb
 
 import (
 	"bufio"
@@ -104,7 +104,7 @@ func exec_adb_cmd_on_device(device string, args []string) {
 		os.Exit(-1)
 	}
 }
-func Sadb() {
+func Gadb() {
 	var devices = read_devices()
 	var args = read_args()
 	var count = len(devices)

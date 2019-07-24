@@ -1,3 +1,3 @@
-module go_sadb
+module gadb
 
 go 1.12

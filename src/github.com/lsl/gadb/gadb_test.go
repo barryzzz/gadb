@@ -1,4 +1,4 @@
-package sadb
+package gadb
 
 import "testing"
 

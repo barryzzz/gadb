@@ -1,7 +1,7 @@
 package main
 
-import "go_sadb/src/github.com/lsl/sadb"
+import "gadb/src/github.com/lsl/gadb"
 
 func main() {
-	sadb.Sadb()
+	gadb.Gadb()
 }

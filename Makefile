@@ -12,9 +12,8 @@ build:
 	go clean
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ${BINARY_NAME}
 	tar czvf gadb-linux64-${VERSION}.tar.gz ./${BINARY_NAME}
-	rm ${BINARY_NAME} ${BINARY_NAME}.exe
-release:
-	
+	rm ${BINARY_NAME}
+
 clean:
 	rm -rf *.gz
 	rm ${BINARY_NAME} ${BINARY_NAME}.exe
