@@ -93,7 +93,7 @@ func exec_adb_cmd_on_device(device string, args []string) {
 	temps = append(temps, "-s")
 	temps = append(temps, device)
 	temps = append(temps, args...)
-	fmt.Println(temps)
+	fmt.Println("adb ", temps)
 	cmd := exec.Command("adb", temps...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
