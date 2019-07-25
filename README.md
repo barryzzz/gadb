@@ -32,3 +32,6 @@ or gadb ....s
 ```
 
 
+### TODO LIST
+
+- [ ] Increase the common commands, quick to use
