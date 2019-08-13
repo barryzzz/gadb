@@ -7,7 +7,7 @@ import (
 )
 
 func Test_read_devices(t *testing.T) {
-	var devices = read_devices()
+	var devices = readDevices()
 	if devices != nil {
 
 	}
