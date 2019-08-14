@@ -39,11 +39,11 @@ func selectDevices(devs []devices) []devices {
 	default:
 		var arrays []devices
 		var c, err = strconv.Atoi(line)
-		if err != nil || c < 0 || c > count {
+		if err != nil || c < 0 || c-1 >= count {
 			fmt.Printf("error input: %s, retry again\n", line)
 			return selectDevices(devs)
 		}
-		arrays = append(arrays, devs[c])
+		arrays = append(arrays, devs[c-1])
 		return arrays
 	}
 	return nil
