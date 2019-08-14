@@ -16,7 +16,7 @@ type devices struct {
 }
 
 //选择设备
-func select_devices(devs []devices) []devices {
+func selectDevices(devs []devices) []devices {
 	count := len(devs)
 	fmt.Println("Device list:")
 	fmt.Println("0) All devices")
@@ -39,18 +39,18 @@ func select_devices(devs []devices) []devices {
 	default:
 		var arrays []devices
 		var c, err = strconv.Atoi(line)
-		if err != nil || c < 0 || c > count {
+		if err != nil || c < 0 || c-1 >= count {
 			fmt.Printf("error input: %s, retry again\n", line)
-			return select_devices(devs)
+			return selectDevices(devs)
 		}
-		arrays = append(arrays, devs[c])
+		arrays = append(arrays, devs[c-1])
 		return arrays
 	}
 	return nil
 
 }
 
-func read_args() []string {
+func readArgs() []string {
 	var args = os.Args[1:]
 	if len(args) == 0 {
 		fmt.Println("just use sadb as an alias for adb")
@@ -60,7 +60,7 @@ func read_args() []string {
 }
 
 //读取设备
-func read_devices() []devices {
+func readDevices() []devices {
 
 	var cmd = exec.Command("adb", "devices", "-l")
 	var stdout, err = cmd.StdoutPipe()
@@ -68,7 +68,11 @@ func read_devices() []devices {
 		fmt.Println(err)
 		os.Exit(0)
 	}
-	cmd.Start()
+	err = cmd.Start()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(0)
+	}
 	reader := bufio.NewReader(stdout)
 	var arrays []devices
 	var re = regexp.MustCompile("\\s+")
@@ -88,7 +92,7 @@ func read_devices() []devices {
 }
 
 //执行shell 指令
-func exec_adb_cmd_on_device(device string, args []string) {
+func execAdbCmdOnDevice(device string, args []string) {
 	var temps []string
 	temps = append(temps, "-s")
 	temps = append(temps, device)
@@ -105,8 +109,8 @@ func exec_adb_cmd_on_device(device string, args []string) {
 	}
 }
 func Gadb() {
-	var devices = read_devices()
-	var args = read_args()
+	var devices = readDevices()
+	var args = readArgs()
 	var count = len(devices)
 
 	if args[0] == "devices" {
@@ -116,13 +120,13 @@ func Gadb() {
 	}
 	switch {
 	case count > 1:
-		dvs := select_devices(devices)
+		dvs := selectDevices(devices)
 		for i := 0; i < len(dvs); i++ {
-			exec_adb_cmd_on_device(dvs[i].serial, args)
+			execAdbCmdOnDevice(dvs[i].serial, args)
 		}
 
 	case count == 1:
-		exec_adb_cmd_on_device(devices[0].serial, args)
+		execAdbCmdOnDevice(devices[0].serial, args)
 	default:
 		fmt.Println("No device found")
 		os.Exit(0)
