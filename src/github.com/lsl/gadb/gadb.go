@@ -84,6 +84,9 @@ func readDevices() []devices {
 		s := strings.Trim(line, "\n")
 		if !strings.HasPrefix(s, "List of devices") && s != "" {
 			var ss = re.Split(s, -1)
+			if ss[1] == "offline" {
+				continue
+			}
 			var dv = devices{ss[0], ss[2], ss[3], ss[4], ss[5]}
 			arrays = append(arrays, dv)
 		}
