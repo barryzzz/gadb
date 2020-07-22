@@ -56,6 +56,13 @@ func readArgs() []string {
 		fmt.Println("just use sadb as an alias for adb")
 		os.Exit(0)
 	}
+	if len(args) ==1{
+		match,_:=regexp.MatchString("\\S*.apk",args[0])
+		fmt.Println(match)
+		if(match){
+			args=append([]string{"install","-r"},args...)
+		}
+	}
 	return args
 }
 
