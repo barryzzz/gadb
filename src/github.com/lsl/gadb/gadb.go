@@ -53,7 +53,7 @@ func selectDevices(devs []devices) []devices {
 func readArgs() []string {
 	var args = os.Args[1:]
 	if len(args) == 0 {
-		fmt.Println("just use sadb as an alias for adb")
+		fmt.Println("just use gadb as an alias for adb")
 		os.Exit(0)
 	}
 	if len(args) ==1{
@@ -91,11 +91,13 @@ func readDevices() []devices {
 		s := strings.Trim(line, "\n")
 		if !strings.HasPrefix(s, "List of devices") && s != "" {
 			var ss = re.Split(s, -1)
-			if ss[1] == "offline" {
-				continue
+			if len(ss) >= 4 {
+				if ss[1] == "offline" {
+					continue
+				}
+				var dv = devices{ss[0], ss[2], ss[3], ss[4], ss[5]}
+				arrays = append(arrays, dv)
 			}
-			var dv = devices{ss[0], ss[2], ss[3], ss[4], ss[5]}
-			arrays = append(arrays, dv)
 		}
 	}
 	return arrays
