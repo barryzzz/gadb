@@ -49,17 +49,33 @@ func readDevices() []Device {
 		s := strings.Trim(line, "\n")
 		if !strings.HasPrefix(s, "List of devices") && s != "" {
 			ss := re.Split(s, -1)
-			if len(ss) >= 4 {
+			if len(ss) >= 2 {
 				// Skip offline devices
 				if ss[1] == "offline" {
 					continue
 				}
-				// Parse device info: serial usb product model device
+				// Parse device info: serial [usb:]product:vendor [model] [device]
+				// Fields vary by device, so handle gracefully
 				dev := Device{
-					Serial:  ss[0],
-					Product: ss[3],
-					Model:   ss[4],
-					Device:  ss[5],
+					Serial: ss[0],
+				}
+				// Product is usually at index 2 (after serial and status)
+				if len(ss) > 2 {
+					// Parse usb:product:vendor format
+					parts := strings.Split(ss[2], ":")
+					if len(parts) >= 3 {
+						dev.Product = parts[1] // product id
+					} else {
+						dev.Product = ss[2]
+					}
+				}
+				// Model is at index 3 if available
+				if len(ss) > 3 {
+					dev.Model = ss[3]
+				}
+				// Device field is at index 4 if available
+				if len(ss) > 4 {
+					dev.Device = ss[4]
 				}
 				devices = append(devices, dev)
 			}
