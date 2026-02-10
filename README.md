@@ -4,7 +4,7 @@ Fast ADB device switcher for multiple Android devices.
 
 ## Why?
 
-[sadb](https://github.com/linroid/sadb) startup is too slow, so rewrite it in Go.
+fast to switch for multiple
 
 ## Installation
 
