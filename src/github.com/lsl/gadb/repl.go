@@ -40,11 +40,12 @@ func RunREPL(devices []Device) error {
 	// Show welcome message
 	printWelcome(ctx)
 
-	// Create readline instance
+	// Create readline instance with completer
 	rl, err := readline.NewEx(&readline.Config{
 		Prompt:          ctx.GetPrompt(),
 		HistoryFile:     os.TempDir() + "/gadb_history",
 		HistoryLimit:    100,
+		AutoComplete:    getCompleter(),
 		InterruptPrompt: "^C",
 		EOFPrompt:       "exit",
 	})
@@ -272,4 +273,206 @@ func RunNormalMode(args []string) error {
 	}
 
 	return nil
+}
+
+// Common adb commands for auto-completion
+var adbCommands = []string{
+	"shell", "install", "uninstall", "push", "pull",
+	"logcat", "bugreport", "devices", "connect", "disconnect",
+	"forward", "reverse", "port-forward", "jdwp",
+	"backup", "restore", "sync",
+	"kill-server", "start-server", "version",
+	"root", "unroot", "remount", "reboot",
+	"tcpip", "usb", "wait-for-device",
+}
+
+// Shell subcommands for auto-completion
+var shellCommands = []string{
+	"ps", "top", "getprop", "setprop", "dumpsys", "pm", "am",
+	"wm", "input", "screencap", "screenrecord", "ls", "cd", "pwd",
+	"cat", "grep", "rm", "mv", "cp", "mkdir", "mount", "umount",
+	"netstat", "ping", "ifconfig", "ip", "route", "netcfg",
+	"su", "id", "whoami", "date", "uptime", "sleep", "dmesg",
+	"lsmod", "insmod", "rmmod", "kill", "killall",
+	"chmod", "chown", "ln", "df", "du", "free", "uname",
+}
+
+// pm (package manager) subcommands
+var pmCommands = []string{
+	"list", "list packages", "list packages -3", "list packages -s",
+	"path", "install", "uninstall",
+	"clear", "enable", "disable", "disable-user",
+	"hide", "unhide",
+	"grant", "revoke",
+	"set-install-location", "get-install-location",
+	"trim-caches", "create-user", "remove-user",
+	"get-max-users", "dump",
+}
+
+// am (activity manager) subcommands
+var amCommands = []string{
+	"start", "startservice", "stopservice",
+	"broadcast", "force-stop",
+	"kill", "kill-all",
+	"start-activity", "start-activity-as-user",
+	"startservice", "startserviceasuser",
+	"stopservice",
+	"broadcast", "broadcast-as-user",
+	"instrument",
+	"dumpheap", "set-debug-app", "clear-debug-app",
+	"monitor", "profile", "dump",
+	"to-uri", "to-intent-uri",
+}
+
+// dumpsys services
+var dumpsysServices = []string{
+	"activity", "window", "package", "power",
+	"battery", "cpuinfo", "meminfo", "procstats",
+	"wifi", "network_management", "connectivity",
+	"telephony", "phone", "bluetooth", "location",
+	"audio", "media", "camera", "input",
+	"alarm", "notification", "jobqueue",
+}
+
+// logcat options
+var logcatOptions = []string{
+	"-v", "-v time", "-v threadtime", "-v brief", "-v process", "-v tag", "-v thread", "-v raw", "-v long", "-v descriptive",
+	"-s", "-f", "-r", "-n", "-t", "-d", "-g", "-G", "-c", "-b", "-B",
+	"*:V", "*:D", "*:I", "*:W", "*:E",
+	"*:S", "AndroidRuntime:E", "System.err:W",
+}
+
+// install options
+var installOptions = []string{
+	"-l", "-r", "-R", "-i", "-t", "-s", "-d", "-g", "--fastdeploy",
+}
+
+// uninstall options
+var uninstallOptions = []string{
+	"-k",
+}
+
+// push/pull options
+var fileTransferOptions = []string{
+	"-p", "-a", "-z", "-Z",
+}
+
+// getCompleter returns a tab completer for commands
+func getCompleter() *readline.PrefixCompleter {
+	completers := make([]readline.PrefixCompleterInterface, 0)
+
+	// shell with nested subcommands
+	completers = append(completers, buildShellCompleter())
+	completers = append(completers, buildLogcatCompleter())
+	completers = append(completers, buildInstallCompleter())
+	completers = append(completers, buildUninstallCompleter())
+	completers = append(completers, buildPushCompleter())
+	completers = append(completers, buildPullCompleter())
+
+	// Other adb commands
+	for _, cmd := range adbCommands {
+		if cmd == "shell" || cmd == "logcat" || cmd == "install" || cmd == "uninstall" || cmd == "push" || cmd == "pull" {
+			continue
+		}
+		completers = append(completers, readline.PcItem(cmd))
+	}
+
+	// Add built-in commands
+	completers = append(completers,
+		readline.PcItem("help"),
+		readline.PcItem("h"),
+		readline.PcItem("?"),
+		readline.PcItem("exit"),
+		readline.PcItem("q"),
+		readline.PcItem("quit"),
+	)
+
+	return readline.NewPrefixCompleter(completers...)
+}
+
+// buildShellCompleter builds shell command completer with nested subcommands
+func buildShellCompleter() *readline.PrefixCompleter {
+	subItems := make([]readline.PrefixCompleterInterface, 0)
+
+	// pm with subcommands
+	pmItems := make([]readline.PrefixCompleterInterface, len(pmCommands))
+	for i, cmd := range pmCommands {
+		pmItems[i] = readline.PcItem(cmd)
+	}
+	subItems = append(subItems, readline.PcItem("pm", pmItems...))
+
+	// am with subcommands
+	amItems := make([]readline.PrefixCompleterInterface, len(amCommands))
+	for i, cmd := range amCommands {
+		amItems[i] = readline.PcItem(cmd)
+	}
+	subItems = append(subItems, readline.PcItem("am", amItems...))
+
+	// dumpsys with services
+	dumpsysItems := make([]readline.PrefixCompleterInterface, len(dumpsysServices))
+	for i, svc := range dumpsysServices {
+		dumpsysItems[i] = readline.PcItem(svc)
+	}
+	subItems = append(subItems, readline.PcItem("dumpsys", dumpsysItems...))
+
+	// other shell commands
+	otherShellCmds := []string{
+		"ps", "top", "getprop", "setprop",
+		"wm", "input", "screencap", "screenrecord",
+		"ls", "cd", "pwd", "cat", "grep", "rm", "mv", "cp", "mkdir", "mount", "umount",
+		"netstat", "ping", "ifconfig", "ip", "route", "netcfg",
+		"su", "id", "whoami", "date", "uptime", "sleep", "dmesg",
+		"lsmod", "insmod", "rmmod", "kill", "killall",
+		"chmod", "chown", "ln", "df", "du", "free", "uname",
+	}
+	for _, cmd := range otherShellCmds {
+		subItems = append(subItems, readline.PcItem(cmd))
+	}
+
+	return readline.PcItem("shell", subItems...)
+}
+
+// buildLogcatCompleter builds logcat command completer
+func buildLogcatCompleter() *readline.PrefixCompleter {
+	items := make([]readline.PrefixCompleterInterface, len(logcatOptions))
+	for i, opt := range logcatOptions {
+		items[i] = readline.PcItem(opt)
+	}
+	return readline.PcItem("logcat", items...)
+}
+
+// buildInstallCompleter builds install command completer
+func buildInstallCompleter() *readline.PrefixCompleter {
+	items := make([]readline.PrefixCompleterInterface, len(installOptions))
+	for i, opt := range installOptions {
+		items[i] = readline.PcItem(opt)
+	}
+	return readline.PcItem("install", items...)
+}
+
+// buildUninstallCompleter builds uninstall command completer
+func buildUninstallCompleter() *readline.PrefixCompleter {
+	items := make([]readline.PrefixCompleterInterface, len(uninstallOptions))
+	for i, opt := range uninstallOptions {
+		items[i] = readline.PcItem(opt)
+	}
+	return readline.PcItem("uninstall", items...)
+}
+
+// buildPushCompleter builds push command completer
+func buildPushCompleter() *readline.PrefixCompleter {
+	items := make([]readline.PrefixCompleterInterface, len(fileTransferOptions))
+	for i, opt := range fileTransferOptions {
+		items[i] = readline.PcItem(opt)
+	}
+	return readline.PcItem("push", items...)
+}
+
+// buildPullCompleter builds pull command completer
+func buildPullCompleter() *readline.PrefixCompleter {
+	items := make([]readline.PrefixCompleterInterface, len(fileTransferOptions))
+	for i, opt := range fileTransferOptions {
+		items[i] = readline.PcItem(opt)
+	}
+	return readline.PcItem("pull", items...)
 }
