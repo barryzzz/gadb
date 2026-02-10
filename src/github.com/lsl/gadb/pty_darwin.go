@@ -1,4 +1,4 @@
-//go:build linux
+//go:build darwin
 
 package gadb
 
@@ -64,10 +64,10 @@ func ExecWithPTY(deviceSerial string, args []string) error {
 	return nil
 }
 
-// makeRaw puts the terminal into raw mode
+// makeRaw puts the terminal into raw mode (macOS version)
 func makeRaw(f *os.File) (*unix.Termios, error) {
 	fd := int(f.Fd())
-	oldState, err := unix.IoctlGetTermios(fd, unix.TCGETS)
+	oldState, err := unix.IoctlGetTermios(fd, unix.TIOCGETA)
 	if err != nil {
 		return nil, err
 	}
@@ -82,24 +82,23 @@ func makeRaw(f *os.File) (*unix.Termios, error) {
 	newState.Cc[unix.VMIN] = 1
 	newState.Cc[unix.VTIME] = 0
 
-	if err := unix.IoctlSetTermios(fd, unix.TCSETS, &newState); err != nil {
+	if err := unix.IoctlSetTermios(fd, unix.TIOCSETA, &newState); err != nil {
 		return nil, err
 	}
 
 	return oldState, nil
 }
 
-// restoreTerminal restores the terminal to its previous state
+// restoreTerminal restores the terminal to its previous state (macOS version)
 func restoreTerminal(f *os.File, state *unix.Termios) error {
 	if state == nil {
 		return nil
 	}
 	fd := int(f.Fd())
-	return unix.IoctlSetTermios(fd, unix.TCSETS, state)
+	return unix.IoctlSetTermios(fd, unix.TIOCSETA, state)
 }
 
-// setupCommand configures a command for proper execution on Unix
-// No special handling needed on Unix
+// setupCommand configures a command for proper execution on macOS
 func setupCommand(cmd *exec.Cmd) {
-	// Unix handles signals properly by default
+	// macOS handles signals properly by default
 }

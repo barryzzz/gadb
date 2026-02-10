@@ -91,6 +91,12 @@ func RunREPL(devices []Device) error {
 func executeREPLInput(ctx *Context, input string) error {
 	ctx.AddToHistory(input)
 
+	// Check for help command
+	if input == "help" || input == "h" || input == "?" {
+		printHelp()
+		return nil
+	}
+
 	// Check for exit commands
 	if input == "q" || input == "exit" || input == "quit" {
 		fmt.Println("Exiting...")
@@ -156,10 +162,8 @@ func printWelcome(ctx *Context) {
 	fmt.Println("Commands:")
 	fmt.Println("  <number>       - Switch to device (1, 2, 3...)")
 	fmt.Println("  0              - Show device list")
+	fmt.Println("  help           - Show detailed help")
 	fmt.Println("  <adb cmd>      - Execute adb command on current device")
-	fmt.Println("  cmd > file     - Redirect output to file")
-	fmt.Println("  cmd >> file    - Append output to file")
-	fmt.Println("  cmd | grep x   - Pipe output to another command")
 	fmt.Println("  q, exit        - Quit")
 	fmt.Println("")
 }
@@ -186,6 +190,46 @@ func printDeviceList(ctx *Context) {
 		}
 		fmt.Printf("%s[%d] %s\n", prefix, i+1, d.String())
 	}
+	fmt.Println("")
+}
+
+// printHelp shows detailed help information
+func printHelp() {
+	fmt.Println("")
+	fmt.Println("  GADB - Fast ADB Device Switcher")
+	fmt.Println("")
+	fmt.Println("USAGE:")
+	fmt.Println("  gadb              - Start interactive REPL mode")
+	fmt.Println("  gadb <command>    - Execute adb command on selected device")
+	fmt.Println("  gadb devices      - List all connected devices")
+	fmt.Println("")
+	fmt.Println("REPL COMMANDS:")
+	fmt.Println("  help, h, ?       - Show this help message")
+	fmt.Println("  <number>         - Switch to device (1, 2, 3...)")
+	fmt.Println("  0                - Show device list")
+	fmt.Println("  Enter (empty)    - Show current device status")
+	fmt.Println("  q, exit, quit    - Quit REPL")
+	fmt.Println("")
+	fmt.Println("ADB COMMANDS (passed through):")
+	fmt.Println("  shell <cmd>      - Execute shell command")
+	fmt.Println("  shell            - Enter interactive shell")
+	fmt.Println("  logcat [args]    - View logcat output")
+	fmt.Println("  install <apk>    - Install APK file")
+	fmt.Println("  uninstall <pkg>  - Uninstall package")
+	fmt.Println("  push <src> <dst> - Push file to device")
+	fmt.Println("  pull <src> <dst> - Pull file from device")
+	fmt.Println("  ...any adb cmd   - All other adb commands work too")
+	fmt.Println("")
+	fmt.Println("REDIRECTION & PIPELINE:")
+	fmt.Println("  cmd > file       - Redirect output to file (overwrite)")
+	fmt.Println("  cmd >> file      - Append output to file")
+	fmt.Println("  cmd | grep x     - Pipe output to another command")
+	fmt.Println("")
+	fmt.Println("EXAMPLES:")
+	fmt.Println("  shell ps                    - List processes")
+	fmt.Println("  shell ps | grep com.android - Filter processes")
+	fmt.Println("  logcat -d > log.txt         - Save logcat to file")
+	fmt.Println("  install app.apk             - Install app")
 	fmt.Println("")
 }
 
