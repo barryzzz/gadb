@@ -13,9 +13,9 @@ go build -o gadb
 ```
 
 Or download the release package for your platform:
-- `gadb-win64-1.0.5.tar.gz` - Windows
-- `gadb-linux64-1.0.5.tar.gz` - Linux
-- `gadb-mac64-1.0.5.tar.gz` - macOS
+- `gadb-win64-1.0.6.tar.gz` - Windows
+- `gadb-linux64-1.0.6.tar.gz` - Linux
+- `gadb-mac64-1.0.6.tar.gz` - macOS
 
 Add the executable to your PATH:
 
@@ -68,6 +68,7 @@ gadb
 | `help`, `h`, `?` | Show detailed help |
 | `1`, `2`, `3`... | Switch to device by number |
 | `0` | Show device list |
+| `!<command>` | Execute local shell command |
 | `Enter` (empty) | Show current device status |
 | `q`, `exit` | Quit REPL |
 
@@ -75,8 +76,9 @@ gadb
 
 | Command | Description |
 |---------|-------------|
-| `shell <cmd>` | Execute shell command |
-| `shell` | Enter interactive shell |
+| `shell` | Enter local shell mode (with history & auto-completion) |
+| `shell <cmd>` | Execute shell command once |
+| `shell --pty` | Enter PTY interactive shell mode |
 | `logcat [args]` | View logcat output |
 | `install <apk>` | Install APK file |
 | `uninstall <pkg>` | Uninstall package |
@@ -100,7 +102,11 @@ gadb
 
 # In REPL:
 > 1                    # Switch to device 1
-> shell ps             # List processes
+> !pwd                 # Show local directory
+> !ls -la              # List local files
+> shell                # Enter shell mode
+[device] $ ps          # List processes (in shell mode)
+[device] $ exit        # Exit shell mode
 > shell ps | grep com  # Filter processes
 > logcat -d > log.txt  # Save logcat to file
 > install app.apk      # Install app
@@ -112,6 +118,8 @@ gadb
 
 - Fast device switching
 - Interactive REPL mode
+- Local shell mode with history & auto-completion
+- Local command execution with `!` prefix
 - Output redirection (`>`, `>>`)
 - Pipeline support (`|`)
 - PTY support for interactive shell/logcat
