@@ -118,6 +118,11 @@ func executeREPLInput(ctx *Context, input string) error {
 		}
 	}
 
+	// Check for bare "shell" command - enter local shell mode
+	if input == "shell" {
+		return RunLocalShellMode(ctx)
+	}
+
 	// Pass through to adb
 	if !ctx.EnsureDevice() {
 		return fmt.Errorf("no device selected")
@@ -212,8 +217,9 @@ func printHelp() {
 	fmt.Println("  q, exit, quit    - Quit REPL")
 	fmt.Println("")
 	fmt.Println("ADB COMMANDS (passed through):")
-	fmt.Println("  shell <cmd>      - Execute shell command")
-	fmt.Println("  shell            - Enter interactive shell")
+	fmt.Println("  shell            - Enter local shell mode (with history & auto-completion)")
+	fmt.Println("  shell <cmd>      - Execute shell command once")
+	fmt.Println("  shell --pty      - Enter PTY interactive shell mode")
 	fmt.Println("  logcat [args]    - View logcat output")
 	fmt.Println("  install <apk>    - Install APK file")
 	fmt.Println("  uninstall <pkg>  - Uninstall package")
@@ -227,6 +233,7 @@ func printHelp() {
 	fmt.Println("  cmd | grep x     - Pipe output to another command")
 	fmt.Println("")
 	fmt.Println("EXAMPLES:")
+	fmt.Println("  shell                       - Enter local shell mode (with history)")
 	fmt.Println("  shell ps                    - List processes")
 	fmt.Println("  shell ps | grep com.android - Filter processes")
 	fmt.Println("  logcat -d > log.txt         - Save logcat to file")
