@@ -13,9 +13,9 @@ go build -o gadb
 ```
 
 Or download the release package for your platform:
-- `gadb-win64-1.0.4.tar.gz` - Windows
-- `gadb-linux64-1.0.4.tar.gz` - Linux
-- `gadb-mac64-1.0.4.tar.gz` - macOS
+- `gadb-win64-1.0.5.tar.gz` - Windows
+- `gadb-linux64-1.0.5.tar.gz` - Linux
+- `gadb-mac64-1.0.5.tar.gz` - macOS
 
 Add the executable to your PATH:
 

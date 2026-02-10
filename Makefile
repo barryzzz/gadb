@@ -1,5 +1,5 @@
 BINARY_NAME=gadb
-VERSION=1.0.4
+VERSION=1.0.5
 build:
 
 	rm -rf *.gz
