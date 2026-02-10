@@ -3,6 +3,7 @@ package gadb
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 
@@ -103,6 +104,15 @@ func executeREPLInput(ctx *Context, input string) error {
 		fmt.Println("Exiting...")
 		ctx.Stop(0)
 		return nil
+	}
+
+	// Check for local shell command with ! prefix
+	if strings.HasPrefix(input, "!") {
+		cmdStr := strings.TrimPrefix(input, "!")
+		if cmdStr == "" {
+			return nil // Empty ! does nothing
+		}
+		return ExecLocalCommand(cmdStr)
 	}
 
 	// Check if input is a pure number - switch device
@@ -213,6 +223,7 @@ func printHelp() {
 	fmt.Println("  help, h, ?       - Show this help message")
 	fmt.Println("  <number>         - Switch to device (1, 2, 3...)")
 	fmt.Println("  0                - Show device list")
+	fmt.Println("  !<command>       - Execute local shell command")
 	fmt.Println("  Enter (empty)    - Show current device status")
 	fmt.Println("  q, exit, quit    - Quit REPL")
 	fmt.Println("")
@@ -233,6 +244,8 @@ func printHelp() {
 	fmt.Println("  cmd | grep x     - Pipe output to another command")
 	fmt.Println("")
 	fmt.Println("EXAMPLES:")
+	fmt.Println("  !ls -la                     - List local files")
+	fmt.Println("  !pwd                        - Show local directory")
 	fmt.Println("  shell                       - Enter local shell mode (with history)")
 	fmt.Println("  shell ps                    - List processes")
 	fmt.Println("  shell ps | grep com.android - Filter processes")
@@ -280,6 +293,31 @@ func RunNormalMode(args []string) error {
 	}
 
 	return nil
+}
+
+// ExecLocalCommand executes a local shell command
+func ExecLocalCommand(cmdStr string) error {
+	// Parse the command string
+	// On Windows, use cmd /c; on Unix, use sh -c
+	var cmd *exec.Cmd
+
+	if strings.Contains(strings.ToLower(os.Getenv("OS")), "windows") || os.Getenv("OSTYPE") == "" && os.Getenv("MSYSTEM") == "" {
+		// Detect Windows by checking if we can run cmd
+		if exec.Command("cmd", "/c", "echo", "1").Run() == nil {
+			cmd = exec.Command("cmd", "/c", cmdStr)
+		} else {
+			// Fallback to sh
+			cmd = exec.Command("sh", "-c", cmdStr)
+		}
+	} else {
+		cmd = exec.Command("sh", "-c", cmdStr)
+	}
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+
+	return cmd.Run()
 }
 
 // Common adb commands for auto-completion
