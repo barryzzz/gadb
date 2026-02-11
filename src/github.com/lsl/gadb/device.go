@@ -77,7 +77,10 @@ func readDevices() []Device {
 				if len(ss) > 4 {
 					dev.Device = ss[4]
 				}
-				devices = append(devices, dev)
+				// Only add device if serial is not empty
+				if dev.Serial != "" {
+					devices = append(devices, dev)
+				}
 			}
 		}
 	}
